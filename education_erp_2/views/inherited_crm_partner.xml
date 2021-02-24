@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--        <record id="crm.msg_case15_2" model="mail.message">-->
+        <!--            <field name="body"><![CDATA[<p>Dear student,<br/>-->
+        <!--                    Thanks for showing interest in our products! As requested, I send to you our products catalog.<br />-->
+        <!--                    To be able to finely tune the solution, we would like to know precise needs. This way we wil be able to help you choosing the right infrastructure according to your requirements.<br/>-->
+        <!--                    Best regards,</p>]]></field>-->
+        <!--        </record>-->
+
+        <record id="crm_lead_view_form" model="ir.ui.view">
+            <field name="name">crm.lead.form</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='lead_partner']" position="inside">
+                    <group name="lead_partner" attrs="{'invisible': [('type', '=', 'opportunity')]}">
+                        <!-- Preload all the partner's information -->
+                        <field name="partner_id" string="Student" widget="res_partner_many2one"
+                               context="{'default_name': contact_name,
+                                        'default_street': street,
+                                        'default_city': city,
+                                        'default_state_id': state_id,
+                                        'default_zip': zip,
+                                        'default_country_id': country_id,
+                                        'default_function': function,
+                                        'default_phone': phone,
+                                        'default_mobile': mobile,
+                                        'default_email': email_from,
+                                        'default_user_id': user_id,
+                                        'default_team_id': team_id,
+                                        'default_website': website,
+                                        'show_vat': True
+                                    }" groups="base.group_no_one"/>
+                    </group>
+                </xpath>
+
+                <xpath expr="//group[@name='opportunity_partner']" position="inside">
+                    <group name="opportunity_partner" attrs="{'invisible': [('type', '=', 'lead')]}">
+                        <field name="partner_id"
+                               widget="res_partner_many2one"
+                               string="Student"
+                               context="{'res_partner_search_mode': type == 'opportunity' and 'customer' or False,
+                                        'default_name': contact_name or partner_name,
+                                        'default_street': street,
+                                        'default_is_company': type == 'opportunity' and contact_name == False,
+                                        'default_company_name': type == 'opportunity' and partner_name,
+                                        'default_street2': street2,
+                                        'default_city': city,
+                                        'default_title': title,
+                                        'default_state_id': state_id,
+                                        'default_zip': zip,
+                                        'default_country_id': country_id,
+                                        'default_function': function,
+                                        'default_phone': phone,
+                                        'default_mobile': mobile,
+                                        'default_email': email_from,
+                                        'default_user_id': user_id,
+                                        'default_team_id': team_id,
+                                        'default_website': website,
+                                        'show_vat': True,
+                                    }"
+                        />
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person" domain="[('share', '=', False)]"
+                           context="{'default_sales_team_id': team_id}" widget="many2one_avatar_user"/>
+                </xpath>
+
+                <xpath expr="//field[@name='team_id']" position="replace">
+                    <field name="team_id" string="Collections Team" widget="selection"
+                           domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"/>
+                    <field name="type" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="inherited_crm_case_tree_view_oppor" model="ir.ui.view">
+            <field name="name">inherited.crm.tree.view.oppr</field>
+            <field name="model">crm.lead</field>
+            <field name="priority">1000</field>
+            <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person" widget="many2one_avatar_user" optional="show"
+                           domain="[('share', '=', False)]"/>
+                </xpath>
+                <xpath expr="//field[@name='team_id']" position="replace">
+                    <field name="team_id" string="Collections Team" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="inherited_view_crm_case_opportunities_filter" model="ir.ui.view">
+            <field name="name">inherited.crm.lead.search.opportunity</field>
+            <field name="model">crm.lead</field>
+            <field name="priority">15</field>
+            <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                    <field name="partner_id" operator="child_of" string="Customer" filter_domain="[
+                        '|', '|', '|',
+                        ('partner_id', 'ilike', self),
+                        ('partner_name', 'ilike', self),
+                        ('email_from', 'ilike', self),
+                        ('contact_name', 'ilike', self)]"/>
+
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="sales_team.sales_team_config_action" model="ir.actions.act_window">
+            <field name="name">Collections Teams</field>
+        </record>
+        <!-- Change CRM menu name -->
+        <record model='ir.ui.menu' id='crm.res_partner_menu_customer'>
+            <field name="name">Students</field>
+        </record>
+
+        <record model='ir.ui.menu' id='crm.crm_menu_root'>
+            <field name="name">STRM</field>
+        </record>
+
+        <!-- Change sales team menu -->
+        <record model='ir.ui.menu' id='crm.crm_team_config'>
+            <field name="name">Collections Teams</field>
+        </record>
+
+        <record model='ir.ui.menu' id='crm.crm_menu_sales'>
+            <field name="name">Collections</field>
+        </record>
+
+        <!--        <menuitem-->
+        <!--                id="crm.res_partner_menu_customer"-->
+        <!--                name="Students"-->
+        <!--                parent="crm.crm_menu_sales"-->
+        <!--                action="base.action_partner_form"-->
+        <!--                sequence="5"/>-->
+
+
+        <!--        <menuitem-->
+        <!--                id="crm.crm_menu_root"-->
+        <!--                name="STRM"-->
+        <!--                web_icon="crm,static/description/icon.png"-->
+        <!--                groups="sales_team.group_sale_salesman,sales_team.group_sale_manager"-->
+        <!--                sequence="6"/>-->
+
+
+        <record id="inherited_crm_case_tree_view_leads" model="ir.ui.view">
+            <field name="name">inherited.crm.lead.tree.lead</field>
+            <field name="model">crm.lead</field>
+            <field name="priority">10</field>
+            <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person" optional="show" widget="many2one_avatar_user"
+                           domain="[('share', '=', False)]"/>
+                </xpath>
+                <xpath expr="//field[@name='team_id']" position="replace">
+                    <field name="team_id" string="Collections Team" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherited_crm_lead_view_activity" model="ir.ui.view">
+            <field name="name">inherited.crm.lead.view.activity</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_activity"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherited_crm_case_kanban_view_leads" model="ir.ui.view">
+            <field name="name">inherited.crm.lead.kanban.lead</field>
+            <field name="model">crm.lead</field>
+            <field name="priority" eval="1"/>
+            <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="inherited_view_crm_case_leads_filter" model="ir.ui.view">
+            <field name="name">inherited.crm.lead.search.lead</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="replace">
+                    <field name="user_id" string="Collections Person"/>
+                </xpath>
+                <xpath expr="//field[@name='team_id']" position="replace">
+                    <field name="team_id" string="Collections Team"/>
+                </xpath>
+                <xpath expr="//filter[@name='salesperson']" position="replace">
+                    <filter string="Collections Person" name="salesperson" context="{'group_by':'user_id'}"/>
+                </xpath>
+                <xpath expr="//filter[@name='saleschannel']" position="replace">
+                    <filter string="Collections Team" name="saleschannel" context="{'group_by':'team_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>
